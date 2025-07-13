@@ -1,0 +1,25 @@
+import { createRouter, createWebHashHistory } from "vue-router";
+
+import Header from "./components/Header.vue";
+import One from "./components/One.vue";
+import FirstWindow from "./components/FirstWindow.vue";
+import Registration from "./components/Registration.vue";
+import Login from "./components/Login.vue";
+import BigState from "./components/BigState.vue";
+import Test from "./components/Test.vue";
+
+export default createRouter ({
+  history: createWebHashHistory(),
+  routes: [
+        { path: '/Header', component: Header },
+        { path: '/One', component: One },
+        { path: '/registration', component: Registration},
+        { path: '/login', component: Login},
+        { path: '/First', component: FirstWindow},
+        { path: '/BigState', component: BigState},
+        { path: '/Test', component: Test}
+        
+  ]
+})
+
+
