@@ -97,8 +97,8 @@ async def Registration(user_data: RegistrationSchema, response: Response):
 
     except HTTPException:
         raise
-    except Exception:
-        raise HTTPException(status_code=500)
+    #except Exception:
+        #raise HTTPException(status_code=500)
 
 @app.get('/LoginAnonymous')
 async def LoginAnonymous(response: Response, request: Request):
