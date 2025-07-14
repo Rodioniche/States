@@ -25,7 +25,7 @@ app.add_middleware(
 DB_config = {
     "dbname": "rodion",
     "user": "rodion",
-    "password": "1234",
+    "password": '1234',
     "host": "172.17.0.1",
     "port": "5432"
 }
