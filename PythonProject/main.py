@@ -10,7 +10,7 @@ import jwt
 import uvicorn
 #origins = [
  #   "http://localhost:5172",
- #   "http://127.0.0.1:5172",  # Исправлено: убрано дублирование http://
+ #   "http://127.0.0.1:5172", 
 #]
 app = FastAPI()
 app.add_middleware(
