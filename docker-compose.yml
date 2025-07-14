@@ -20,7 +20,8 @@ services:
   backend:
     build:
       context: ./PythonProject
-    
+    ports:
+    - "5432:5432"
     networks:
       - dev
     
