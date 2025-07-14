@@ -63,7 +63,7 @@ class PostSchema(BaseModel):
     owner: str
 
 
-@app.post("/api/Registration")
+@app.post("/Registration")
 async def Registration(user_data: RegistrationSchema, response: Response):
 
     try:
@@ -100,7 +100,7 @@ async def Registration(user_data: RegistrationSchema, response: Response):
     except Exception:
         raise HTTPException(status_code=500)
 
-@app.get('/api/LoginAnonymous')
+@app.get('/LoginAnonymous')
 async def LoginAnonymous(response: Response, request: Request):
     token = request.cookies.get(config.JWT_ACCESS_COOKIE_NAME)
 
@@ -120,7 +120,7 @@ async def LoginAnonymous(response: Response, request: Request):
 
 
 
-@app.get('/api/protected', dependencies=[Depends(security.access_token_required)])
+@app.get('/protected', dependencies=[Depends(security.access_token_required)])
 async def get_protected():
     return {"message": "Hello World"}
 
@@ -128,7 +128,7 @@ async def get_protected():
 class LoginSchema(BaseModel):
     Email: EmailStr
     password: str
-@app.post("/api/Login")
+@app.post("/Login")
 async def Login(user_data: LoginSchema, response: Response):
     try:
         with psycopg2.connect(**DB_config) as conn:
@@ -161,7 +161,7 @@ class StateSchema(BaseModel):
     title: str
     text: str
 
-@app.post("/api/PostState", dependencies=[Depends(security.access_token_required)])
+@app.post("/PostState", dependencies=[Depends(security.access_token_required)])
 async def PostState(state: StateSchema, request: Request):
 
         if state.text == '' or state.title == '':
@@ -191,7 +191,7 @@ class CommSchema(BaseModel):
     text: str
     id_state: int
 
-@app.post("/api/PostComm", dependencies=[Depends(security.access_token_required)])
+@app.post("/PostComm", dependencies=[Depends(security.access_token_required)])
 async def PostComm(comm: CommSchema, request: Request):
     if comm.text == '':
         raise HTTPException(status_code=409, detail='text of state in empty')
@@ -238,7 +238,7 @@ async def PostComm(comm: CommSchema, request: Request):
             "id_state": comm.id_state,
             "id_own_comm": id_own_comm
             }]
-@app.get('/api/GetStates')
+@app.get('/GetStates')
 async def get_states(request: Request):
     try:
         json_states = []
@@ -261,7 +261,7 @@ async def get_states(request: Request):
     except:
         raise HTTPException(status_code=500)
 
-@app.get('/api/GetComm/{id_state}')
+@app.get('/GetComm/{id_state}')
 async def get_comm(id_state: int):
     try:
         with psycopg2.connect(**DB_config) as conn:
@@ -283,7 +283,7 @@ async def get_comm(id_state: int):
 
 
 
-@app.get('/api/GetMoreStates/{count_states}')
+@app.get('/GetMoreStates/{count_states}')
 async def get_comm(count_states: int):
     try:
         json_states = []
@@ -306,3 +306,20 @@ async def get_comm(count_states: int):
         return json_states
     except:
         raise HTTPException(status_code=500)
+
+
+
+
+
+
+#@app.get("/addPost")
+#async def addPost(post_data:PostSchema):
+  #  try:
+
+
+
+
+
+@app.get("/first")
+async def first():
+    return {"message": "bebra"}
