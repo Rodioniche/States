@@ -23,7 +23,7 @@ services:
     
     networks:
       - dev
-    depends_on:
+    
 
   frontend:
     build:
