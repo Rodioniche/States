@@ -91,7 +91,7 @@ export default {
 
 <style scoped>
 .State-main {
-    width: 50%;
+    width: 100%;
     min-height: 10vh;
     max-height: 70vh;
     border-radius: 20px;

@@ -31,7 +31,7 @@ function GetToken() {
         <RouterLink to="/registration">
             <button>Регистрация</button>
         </RouterLink>
-        <RouterLink to="/First">
+        <RouterLink to="/">
         <button @click="GetToken()">Гостевой режим</button>
         </RouterLink>
     </div>

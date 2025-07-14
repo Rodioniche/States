@@ -8,7 +8,8 @@ export default {
             UserName: '',
             Email: '',
             password_first: '',
-            password_second: ''
+            password_second: '',
+            reged:'not'
 
 
         }
@@ -26,10 +27,13 @@ export default {
             .then(response => {
                 console.log('Успех');
                 console.log(response)
+                this.reged = response.data.reged
+                this.$router.push('/');
             })
             .catch(error => {
                 console.log('Не успех');
-                console.log(error)
+                console.log(error);
+                this.reged = 'false'
             })
         },
         GetToken() {
@@ -72,8 +76,8 @@ export default {
         
         <div classname="bottom-panel">
             <button @click="SendRegData()">Зарегестрироваться</button>
-            
-            <RouterLink to="/First">
+            <div v-if="reged='false'">Ошибка</div>
+            <RouterLink to="/">
             <a href="" className="a-bottom-panel" @click="GetToken()">Войти анонимно</a>
             </RouterLink>
         </div>

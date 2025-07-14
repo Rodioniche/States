@@ -13,11 +13,10 @@ import AddingState from "./components/AddingState.vue";
 export default createRouter ({
   history: createWebHashHistory(),
   routes: [
-        { path: '/Header', component: Header },
+        { path: '/', component: FirstWindow },
         { path: '/One', component: One },
         { path: '/registration', component: Registration},
         { path: '/login', component: Login},
-        { path: '/First', component: FirstWindow},
         { path: '/BigState', component: BigState},
         { path: '/Test', component: Test},
         { path: '/Adding', component: AddingState}

@@ -63,7 +63,7 @@ class PostSchema(BaseModel):
     owner: str
 
 
-@app.post("/Registration")
+@app.post("/api/Registration")
 async def Registration(user_data: RegistrationSchema, response: Response):
 
     try:
@@ -93,17 +93,19 @@ async def Registration(user_data: RegistrationSchema, response: Response):
                 conn.commit()
                 token = security.create_access_token(uid=(str(id_user)))
                 response.set_cookie(config.JWT_ACCESS_COOKIE_NAME, token, max_age=3600*24*15)
-
+                return {"reged": "true"}
 
     except HTTPException:
         raise
-    #except Exception:
-        #raise HTTPException(status_code=500)
+    except Exception:
+        raise HTTPException(status_code=500)
 
-@app.get('/LoginAnonymous')
+@app.get('/api/LoginAnonymous')
 async def LoginAnonymous(response: Response, request: Request):
-    id_anon_user = request.cookies.get(config.JWT_ACCESS_COOKIE_NAME)
-    if id_anon_user is None:
+    token = request.cookies.get(config.JWT_ACCESS_COOKIE_NAME)
+
+
+    if token is None:
         id_anon_user = int(datetime.now().timestamp() * 100000)
     with psycopg2.connect(**DB_config) as conn:
         with conn.cursor() as cur:
@@ -117,7 +119,8 @@ async def LoginAnonymous(response: Response, request: Request):
 
 
 
-@app.get('/protected', dependencies=[Depends(security.access_token_required)])
+
+@app.get('/api/protected', dependencies=[Depends(security.access_token_required)])
 async def get_protected():
     return {"message": "Hello World"}
 
@@ -125,7 +128,7 @@ async def get_protected():
 class LoginSchema(BaseModel):
     Email: EmailStr
     password: str
-@app.post("/Login")
+@app.post("/api/Login")
 async def Login(user_data: LoginSchema, response: Response):
     try:
         with psycopg2.connect(**DB_config) as conn:
@@ -146,19 +149,19 @@ async def Login(user_data: LoginSchema, response: Response):
 
                 id_user = str(id_user)
                 token = security.create_access_token(uid=id_user)
-                response.set_cookie(config.JWT_ACCESS_COOKIE_NAME, token)
+                response.set_cookie(config.JWT_ACCESS_COOKIE_NAME, token, httponly=True)
                 return {token: password[0]}
     except HTTPException:
         raise
-    #except Exception:
-        #raise HTTPException(status_code=500)
+    except Exception:
+        raise HTTPException(status_code=500)
 
 
 class StateSchema(BaseModel):
     title: str
     text: str
 
-@app.post("/PostState", dependencies=[Depends(security.access_token_required)])
+@app.post("/api/PostState", dependencies=[Depends(security.access_token_required)])
 async def PostState(state: StateSchema, request: Request):
 
         if state.text == '' or state.title == '':
@@ -188,7 +191,7 @@ class CommSchema(BaseModel):
     text: str
     id_state: int
 
-@app.post("/PostComm", dependencies=[Depends(security.access_token_required)])
+@app.post("/api/PostComm", dependencies=[Depends(security.access_token_required)])
 async def PostComm(comm: CommSchema, request: Request):
     if comm.text == '':
         raise HTTPException(status_code=409, detail='text of state in empty')
@@ -230,18 +233,18 @@ async def PostComm(comm: CommSchema, request: Request):
                 conn.commit()
 
 
-    return {"id_comm": id_comm,
+    return [{"id_comm": id_comm,
             "text": comm.text,
             "id_state": comm.id_state,
             "id_own_comm": id_own_comm
-            }
-@app.get('/GetStates')
+            }]
+@app.get('/api/GetStates')
 async def get_states(request: Request):
     try:
         json_states = []
         with psycopg2.connect(**DB_config) as conn:
             with conn.cursor() as cur:
-                cur.execute('SELECT id_state, title, text, id_owner, username FROM states JOIN users ON id_user = id_owner ORDER BY id_state DESC LIMIT 1;')
+                cur.execute('SELECT id_state, title, text, id_owner, username FROM states JOIN users ON id_user = id_owner ORDER BY id_state DESC LIMIT 3;')
 
                 states = cur.fetchall()
         for line in states:
@@ -258,7 +261,7 @@ async def get_states(request: Request):
     except:
         raise HTTPException(status_code=500)
 
-@app.get('/GetComm/{id_state}')
+@app.get('/api/GetComm/{id_state}')
 async def get_comm(id_state: int):
     try:
         with psycopg2.connect(**DB_config) as conn:
@@ -280,22 +283,26 @@ async def get_comm(id_state: int):
 
 
 
+@app.get('/api/GetMoreStates/{count_states}')
+async def get_comm(count_states: int):
+    try:
+        json_states = []
+        with psycopg2.connect(**DB_config) as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    'SELECT id_state, title, text, id_owner, username FROM states JOIN users ON id_user = id_owner ORDER BY id_state DESC LIMIT %s;',
+                    (count_states,))
 
-
-
-
-
-
-
-#@app.get("/addPost")
-#async def addPost(post_data:PostSchema):
-  #  try:
-
-
-
-
-
-@app.get("/first")
-async def first():
-    return {"message": "bebra"}
-
+                states = cur.fetchall()
+        for line in states:
+            json_states.append(
+                {
+                    "id_state": line[0],
+                    "title": line[1],
+                    "text": line[2],
+                    "id_owner": line[3],
+                    "username": line[4]
+                })
+        return json_states
+    except:
+        raise HTTPException(status_code=500)

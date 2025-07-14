@@ -43,7 +43,7 @@ export default {
             axios.post('/api/PostComm',
                 {
                     "text": this.text_comment,
-                    "id_state": this.id_state
+                    "id_state": this.state_data.id_state
                 },
                 
                 
@@ -52,6 +52,7 @@ export default {
                 console.log('Успех');
                 console.log(response);
                 this.text_comment = '';
+                this.spisok_comms = response.data;
             })
             .catch(error => {
                 console.log('Не успех');
@@ -86,7 +87,7 @@ export default {
         </div>
         <article className="texting">{{ state_data.text }}</article>
     
-        
+        <article v-if="spisok_comms.length==0">Пока комментариев нет</article>
         <Comm v-for="(item, index) in spisok_comms" :comm_info="item" :key="index"></Comm>
         
         

@@ -4,7 +4,8 @@ export default {
     data() {
         return {
             Email: '',
-            Password: ''
+            Password: '',
+            reged: 'not'
         }
     },
     methods: {
@@ -18,11 +19,14 @@ export default {
             .then(response => {
                 console.log(response);
                 console.log('Успех');
+                this.reged = response.data.reged;
+                this.$router.push('/');
 
             })
             .catch(error => {
                 console.log(error);
-                console.log('Не успех')
+                console.log('Не успех');
+                this.reged = 'false';
             })
         },
         GetToken() {
@@ -53,9 +57,10 @@ export default {
                 <label>Пароль</label>
                 <input type="text" placeholder="Введите Пароль пользователя" v-model="Password">
             </div>
-        <div classname="bottom-panel">
+            <div v-if="reged='false'">Ошибка</div>
+            <div classname="bottom-panel">
             <button @click="SendDataLogin()">Войти</button>
-            <RouterLink to="/First">
+            <RouterLink to="/">
                 <a href="" className="a-bottom-panel" @click="GetToken()">Войти анонимно</a>
             </RouterLink>
         </div>
