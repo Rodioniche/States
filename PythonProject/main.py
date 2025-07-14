@@ -23,10 +23,10 @@ app.add_middleware(
 
 
 DB_config = {
-    "dbname": "rodion",
-    "user": "rodion",
+    "dbname": "states",
+    "user": "postgres",
     "password": '1234',
-    "host": "172.17.0.1",
+    "host": "datab",
     "port": "5432"
 }
 

@@ -20,10 +20,11 @@ services:
   backend:
     build:
       context: ./PythonProject
-    ports:
-    - "5432:5432"
     networks:
       - dev
+    depends_on:
+      - datab
+    
     
 
   frontend:
@@ -31,6 +32,19 @@ services:
       context: ./states
     networks:
       - dev
+  datab:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: states    
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+      - ./sql_init/table_comms.sql:/docker-entrypoint-initdb.d/table_comms.sql
+    # network_mode: 'host'
+    networks:
+      - dev
+    
     
   
  
