@@ -26,7 +26,7 @@ DB_config = {
     "dbname": "rodion",
     "user": "rodion",
     "password": '1234',
-    "host": "172.17.0.1",
+    "host": "localhost",
     "port": "5432"
 }
 
