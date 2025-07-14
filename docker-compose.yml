@@ -33,18 +33,4 @@ services:
       - dev
     
   
-  #database:
-    #image: postgres:17
-    #ports:
-     # - "5432:5432"
-    #networks:
-    #  - dev
-    #environment:
-    #  POSTGRES_USER: postgres
-    #  POSTGRES_PASSWORD: 1234
-    #  POSTGRES_DB: states
-   # volumes:
-   #  - postgres_data:/var/lib/postgresql/data
-    #  - ./init_db:/docker-entrypoint-initdb.d
-#volumes:
- # postgres_data:  
+ 
