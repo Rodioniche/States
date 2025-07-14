@@ -23,8 +23,8 @@ app.add_middleware(
 
 
 DB_config = {
-    "dbname": "states",
-    "user": "postgres",
+    "dbname": "rodion",
+    "user": "rodion",
     "password": "1234",
     "host": "host.docker.internal",
     "port": "5432"
