@@ -93,19 +93,17 @@ async def Registration(user_data: RegistrationSchema, response: Response):
                 conn.commit()
                 token = security.create_access_token(uid=(str(id_user)))
                 response.set_cookie(config.JWT_ACCESS_COOKIE_NAME, token, max_age=3600*24*15)
-                return {"reged": "true"}
+
 
     except HTTPException:
         raise
-    except Exception:
-        raise HTTPException(status_code=500)
+    #except Exception:
+        #raise HTTPException(status_code=500)
 
 @app.get('/LoginAnonymous')
 async def LoginAnonymous(response: Response, request: Request):
-    token = request.cookies.get(config.JWT_ACCESS_COOKIE_NAME)
-
-
-    if token is None:
+    id_anon_user = request.cookies.get(config.JWT_ACCESS_COOKIE_NAME)
+    if id_anon_user is None:
         id_anon_user = int(datetime.now().timestamp() * 100000)
     with psycopg2.connect(**DB_config) as conn:
         with conn.cursor() as cur:
@@ -115,7 +113,6 @@ async def LoginAnonymous(response: Response, request: Request):
             conn.commit()
     token = security.create_access_token(uid=(str(id_anon_user)))
     response.set_cookie(config.JWT_ACCESS_COOKIE_NAME, token, max_age=3600)
-
 
 
 
@@ -149,12 +146,12 @@ async def Login(user_data: LoginSchema, response: Response):
 
                 id_user = str(id_user)
                 token = security.create_access_token(uid=id_user)
-                response.set_cookie(config.JWT_ACCESS_COOKIE_NAME, token, httponly=True)
+                response.set_cookie(config.JWT_ACCESS_COOKIE_NAME, token)
                 return {token: password[0]}
     except HTTPException:
         raise
-    except Exception:
-        raise HTTPException(status_code=500)
+    #except Exception:
+        #raise HTTPException(status_code=500)
 
 
 class StateSchema(BaseModel):
@@ -233,18 +230,18 @@ async def PostComm(comm: CommSchema, request: Request):
                 conn.commit()
 
 
-    return [{"id_comm": id_comm,
+    return {"id_comm": id_comm,
             "text": comm.text,
             "id_state": comm.id_state,
             "id_own_comm": id_own_comm
-            }]
+            }
 @app.get('/GetStates')
 async def get_states(request: Request):
     try:
         json_states = []
         with psycopg2.connect(**DB_config) as conn:
             with conn.cursor() as cur:
-                cur.execute('SELECT id_state, title, text, id_owner, username FROM states JOIN users ON id_user = id_owner ORDER BY id_state DESC LIMIT 3;')
+                cur.execute('SELECT id_state, title, text, id_owner, username FROM states JOIN users ON id_user = id_owner ORDER BY id_state DESC LIMIT 1;')
 
                 states = cur.fetchall()
         for line in states:
@@ -283,29 +280,7 @@ async def get_comm(id_state: int):
 
 
 
-@app.get('/GetMoreStates/{count_states}')
-async def get_comm(count_states: int):
-    try:
-        json_states = []
-        with psycopg2.connect(**DB_config) as conn:
-            with conn.cursor() as cur:
-                cur.execute(
-                    'SELECT id_state, title, text, id_owner, username FROM states JOIN users ON id_user = id_owner ORDER BY id_state DESC LIMIT %s;',
-                    (count_states,))
 
-                states = cur.fetchall()
-        for line in states:
-            json_states.append(
-                {
-                    "id_state": line[0],
-                    "title": line[1],
-                    "text": line[2],
-                    "id_owner": line[3],
-                    "username": line[4]
-                })
-        return json_states
-    except:
-        raise HTTPException(status_code=500)
 
 
 
@@ -323,3 +298,4 @@ async def get_comm(count_states: int):
 @app.get("/first")
 async def first():
     return {"message": "bebra"}
+
