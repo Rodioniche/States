@@ -7,6 +7,8 @@ import Registration from "./components/Registration.vue";
 import Login from "./components/Login.vue";
 import BigState from "./components/BigState.vue";
 import Test from "./components/Test.vue";
+import AddingState from "./components/AddingState.vue";
+
 
 export default createRouter ({
   history: createWebHashHistory(),
@@ -17,7 +19,8 @@ export default createRouter ({
         { path: '/login', component: Login},
         { path: '/First', component: FirstWindow},
         { path: '/BigState', component: BigState},
-        { path: '/Test', component: Test}
+        { path: '/Test', component: Test},
+        { path: '/Adding', component: AddingState}
         
   ]
 })

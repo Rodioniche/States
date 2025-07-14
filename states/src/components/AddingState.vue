@@ -47,7 +47,7 @@ export default {
 </template>
 
 <style scoped>
-* {
-    background-color: blueviolet;
+.all-components {
+    background-color: aqua;
 }
 </style>

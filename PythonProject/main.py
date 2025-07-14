@@ -25,8 +25,8 @@ app.add_middleware(
 DB_config = {
     "dbname": "states",
     "user": "postgres",
-    "password": "753951asdD",
-    "host": "localhost",
+    "password": "1234",
+    "host": "host.docker.internal",
     "port": "5432"
 }
 
@@ -63,7 +63,7 @@ class PostSchema(BaseModel):
     owner: str
 
 
-@app.post("/api/Registration")
+@app.post("/Registration")
 async def Registration(user_data: RegistrationSchema, response: Response):
 
     try:
@@ -100,7 +100,7 @@ async def Registration(user_data: RegistrationSchema, response: Response):
     except Exception:
         raise HTTPException(status_code=500)
 
-@app.get('/api/LoginAnonymous')
+@app.get('/LoginAnonymous')
 async def LoginAnonymous(response: Response, request: Request):
     id_anon_user = request.cookies.get(config.JWT_ACCESS_COOKIE_NAME)
     if id_anon_user is None:
@@ -117,7 +117,7 @@ async def LoginAnonymous(response: Response, request: Request):
 
 
 
-@app.get('/api/protected', dependencies=[Depends(security.access_token_required)])
+@app.get('/protected', dependencies=[Depends(security.access_token_required)])
 async def get_protected():
     return {"message": "Hello World"}
 
@@ -125,7 +125,7 @@ async def get_protected():
 class LoginSchema(BaseModel):
     Email: EmailStr
     password: str
-@app.post("/api/Login")
+@app.post("/Login")
 async def Login(user_data: LoginSchema, response: Response):
     try:
         with psycopg2.connect(**DB_config) as conn:
@@ -150,15 +150,15 @@ async def Login(user_data: LoginSchema, response: Response):
                 return {token: password[0]}
     except HTTPException:
         raise
-    except Exception:
-        raise HTTPException(status_code=500)
+    #except Exception:
+        #raise HTTPException(status_code=500)
 
 
 class StateSchema(BaseModel):
     title: str
     text: str
 
-@app.post("/api/PostState", dependencies=[Depends(security.access_token_required)])
+@app.post("/PostState", dependencies=[Depends(security.access_token_required)])
 async def PostState(state: StateSchema, request: Request):
 
         if state.text == '' or state.title == '':
@@ -188,7 +188,7 @@ class CommSchema(BaseModel):
     text: str
     id_state: int
 
-@app.post("/api/PostComm", dependencies=[Depends(security.access_token_required)])
+@app.post("/PostComm", dependencies=[Depends(security.access_token_required)])
 async def PostComm(comm: CommSchema, request: Request):
     if comm.text == '':
         raise HTTPException(status_code=409, detail='text of state in empty')
@@ -235,13 +235,13 @@ async def PostComm(comm: CommSchema, request: Request):
             "id_state": comm.id_state,
             "id_own_comm": id_own_comm
             }
-@app.get('/api/GetStates')
+@app.get('/GetStates')
 async def get_states(request: Request):
     try:
         json_states = []
         with psycopg2.connect(**DB_config) as conn:
             with conn.cursor() as cur:
-                cur.execute('SELECT id_state, title, text, id_owner, username FROM states JOIN users ON id_user = id_owner ORDER BY id_state DESC LIMIT 3;')
+                cur.execute('SELECT id_state, title, text, id_owner, username FROM states JOIN users ON id_user = id_owner ORDER BY id_state DESC LIMIT 1;')
 
                 states = cur.fetchall()
         for line in states:
@@ -258,7 +258,7 @@ async def get_states(request: Request):
     except:
         raise HTTPException(status_code=500)
 
-@app.get('/api/GetComm/{id_state}')
+@app.get('/GetComm/{id_state}')
 async def get_comm(id_state: int):
     try:
         with psycopg2.connect(**DB_config) as conn:
