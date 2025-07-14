@@ -26,8 +26,8 @@ DB_config = {
     "dbname": "rodion",
     "user": "rodion",
     "password": '1234',
-    "host": "localhost",
-    "port": "5433"
+    "host": "host.docker.internal",
+    "port": "5432"
 }
 
 
