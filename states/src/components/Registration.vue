@@ -75,8 +75,9 @@ export default {
         
         
         <div classname="bottom-panel">
+            <div v-if="reged =='false'">Ошибка</div>
             <button @click="SendRegData()">Зарегестрироваться</button>
-            <div v-if="reged='false'">Ошибка</div>
+            
             <RouterLink to="/">
             <a href="" className="a-bottom-panel" @click="GetToken()">Войти анонимно</a>
             </RouterLink>

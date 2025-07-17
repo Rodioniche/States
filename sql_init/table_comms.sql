@@ -26,4 +26,9 @@ password VARCHAR(100) NOT NULL,
 role VARCHAR(100) NOT NULL
 );
 
+CREATE TABLE files3 (
+id_state BIGINT NOT NULL,
+filename VARCHAR(300) NOT NULL
+);
+
 INSERT INTO users (id_user, username, email, password, role) VALUES (1234, 'Rodion', 'Rodion@yandex.ru', '12345', 'admin');

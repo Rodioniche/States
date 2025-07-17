@@ -10,6 +10,7 @@ import Test from "./components/Test.vue";
 import AddingState from "./components/AddingState.vue";
 
 
+
 export default createRouter ({
   history: createWebHashHistory(),
   routes: [
@@ -19,7 +20,8 @@ export default createRouter ({
         { path: '/login', component: Login},
         { path: '/BigState', component: BigState},
         { path: '/Test', component: Test},
-        { path: '/Adding', component: AddingState}
+        { path: '/Adding', component: AddingState},
+        
         
   ]
 })

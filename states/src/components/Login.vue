@@ -57,7 +57,7 @@ export default {
                 <label>Пароль</label>
                 <input type="text" placeholder="Введите Пароль пользователя" v-model="Password">
             </div>
-            <div v-if="reged='false'">Ошибка</div>
+            <div v-if="reged =='false'">Ошибка</div>
             <div classname="bottom-panel">
             <button @click="SendDataLogin()">Войти</button>
             <RouterLink to="/">

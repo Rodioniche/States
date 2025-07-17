@@ -1,11 +1,26 @@
-<script>
+<script setup>
 import Header from './components/Header.vue';
+import axios from 'axios';
+import { useAuthStore } from '@/stores/authStore.js';
 
 
-export default {
-components: { Header }  
-  
+const authStore = useAuthStore();
+
+    
+function Reg_or_not() {
+     axios.get('http://127.0.0.1:8000/api/remember_me')
+    .then(response => {
+        console.log('Успех');
+        console.log(response);
+        authStore.login(response.data.userName, response.data.email)
+        })
+    .catch(error => {
+        console.log('Успех');
+        console.log(error);
+    })
 }
+Reg_or_not()    
+
 </script>
 
 <template>

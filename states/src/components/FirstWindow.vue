@@ -4,8 +4,10 @@ import axios from 'axios';
 import Header from './Header.vue';
 import BigState from './BigState.vue';
 import AddingState from './AddingState.vue';
+import UplFile from './UplFile.vue';
+
 export default {
-    components: { State, Header, BigState, AddingState },
+    components: { State, Header, BigState, AddingState, UplFile },
     data() {
         
         return {
@@ -59,12 +61,14 @@ export default {
 
 <template>
 <div className="wind">
-<div className="big-window" v-for="(item, index) in spisok">
-    <State :state_data="item" :key="index"></State>
+    <div className="big-window" v-for="(item, index) in spisok">
+        <State :state_data="item" :key="index"></State>
     
-</div>
-<button classNane="btn" @click="GetMoreStates()">Отобразить еще статьи</button>
-<AddingState></AddingState>
+    </div>
+    <div className="knopka">
+        <a className="btn" @click="GetMoreStates()">Показать следующие статьи</a>
+    </div>
+    <AddingState></AddingState>
 </div>
 
 
@@ -77,6 +81,18 @@ export default {
     margin-left: auto;
     margin-right: auto;
     width: 50%;
+    
+}
+
+.knopka {
+    text-align: center;
+    margin-top: 3%;
+    cursor: pointer;
+    font-size: 18px;
+    color: #3f69fd;
+}
+a:hover {
+    border-bottom: 2px #3f69fd solid;
 }
 
 </style>

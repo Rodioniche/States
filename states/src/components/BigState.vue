@@ -20,6 +20,7 @@ export default {
             id_state: 1234,
             id_owner: '',
             username_owner: '',
+            spisok_files: [],
             
             id_owner_comment: 124234,
             text_comment: '',
@@ -36,10 +37,11 @@ export default {
     },
     created() {
         this.GetComms()
+        this.GetFilesNames()
     },
    
     methods: {
-        PublishComm() {
+        async PublishComm() {
             axios.post('/api/PostComm',
                 {
                     "text": this.text_comment,
@@ -59,9 +61,9 @@ export default {
                 console.log(error);
             })
         },
-        GetComms() {
+        async GetComms() {
             
-            axios.get(`/api/GetComm/${this.state_data.id_state}`)
+            axios.get(`http://127.0.0.1:8000/api/GetComm/${this.state_data.id_state}`)
             .then(response => {
                 console.log('Успех');
                 console.log(response);
@@ -71,6 +73,18 @@ export default {
                 console.log('Не успех');
                 console.log(error);
                 console.log(this.state_data.id_state)
+            })
+        },
+        async GetFilesNames() {
+            axios.get(`http://127.0.0.1:8000/api/files/${this.state_data.id_state}`)
+            .then(response => {
+                console.log('Успех');
+                console.log(response);
+                this.spisok_files = response.data;
+            })
+            .catch(error => {
+                console.log('Не успех');
+                console.log(error);
             })
         }
     }
@@ -86,9 +100,11 @@ export default {
             <h3>{{ state_data.title }}</h3>
         </div>
         <article className="texting">{{ state_data.text }}</article>
-    
+        <div className="files" v-for="(item, index) in spisok_files">
+            <article>{{ item.filename }}</article>
+        </div>
         <article v-if="spisok_comms.length==0">Пока комментариев нет</article>
-        <Comm v-for="(item, index) in spisok_comms" :comm_info="item" :key="index"></Comm>
+        <Comm v-for="(item, index) in spisok_comms" :comm_info="item" :key="index" ></Comm>
         
         
         <div className="fields">
