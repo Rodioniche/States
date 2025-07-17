@@ -101,7 +101,7 @@ async def Registration(user_data: RegistrationSchema, response: Response):
     except Exception:
         raise HTTPException(status_code=500)
 
-@app.get('/remember_me')
+@app.get("/rememberMe")
 async def Rem_me(request: Request):
     try:
         token = request.cookies.get(config.JWT_ACCESS_COOKIE_NAME)

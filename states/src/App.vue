@@ -8,7 +8,7 @@ const authStore = useAuthStore();
 
     
 function Reg_or_not() {
-     axios.get('/api/remember_me')
+     axios.get("/api/rememberMe")
     .then(response => {
         console.log('Успех');
         console.log(response);
