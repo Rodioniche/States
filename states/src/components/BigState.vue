@@ -63,7 +63,7 @@ export default {
         },
         async GetComms() {
             
-            axios.get(`http://127.0.0.1:8000/api/GetComm/${this.state_data.id_state}`)
+            axios.get(`/api/GetComm/${this.state_data.id_state}`)
             .then(response => {
                 console.log('Успех');
                 console.log(response);
@@ -76,7 +76,7 @@ export default {
             })
         },
         async GetFilesNames() {
-            axios.get(`http://127.0.0.1:8000/api/files/${this.state_data.id_state}`)
+            axios.get(`/api/files/${this.state_data.id_state}`)
             .then(response => {
                 console.log('Успех');
                 console.log(response);
