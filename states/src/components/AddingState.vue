@@ -27,6 +27,7 @@ export default {
             console.log('Успех')
             this.text = '';
             this.title = '';
+            this.$emit('state_added', response.data);
             this.id_state = response.data.id_state;
             this.upload()
         })

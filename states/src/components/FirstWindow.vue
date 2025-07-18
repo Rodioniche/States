@@ -11,7 +11,8 @@ export default {
     data() {
         
         return {
-            spisok: []
+            spisok: [],
+            
            
 
         }
@@ -53,7 +54,12 @@ export default {
                 console.log('Не успех');
                 console.log(error)
             })
+        },
+        recived_msg(payload) {
+                this.spisok.unshift(payload)
+                console.log(this.spisok)
         }
+
     }
   
 }
@@ -68,7 +74,7 @@ export default {
     <div className="knopka">
         <a className="btn" @click="GetMoreStates()">Показать следующие статьи</a>
     </div>
-    <AddingState></AddingState>
+    <AddingState @state_added="recived_msg"></AddingState>
 </div>
 
 

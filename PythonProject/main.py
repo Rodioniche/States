@@ -101,7 +101,7 @@ async def Registration(user_data: RegistrationSchema, response: Response):
     except Exception:
         raise HTTPException(status_code=500)
 
-@app.get("/rememberMe")
+@app.get('/rememberMe')
 async def Rem_me(request: Request):
     try:
         token = request.cookies.get(config.JWT_ACCESS_COOKIE_NAME)
@@ -191,9 +191,9 @@ async def PostState(state: StateSchema, request: Request):
 
         with psycopg2.connect(**DB_config) as conn:
             with conn.cursor() as cur:
-                cur.execute('SELECT * FROM anonms WHERE id_anon = %s', (id_owner,))
+                cur.execute('SELECT username FROM users WHERE id_user = %s', (id_owner,))
                 anon_reg = cur.fetchone()
-                if anon_reg is None:
+                if anon_reg is not None:
                     id_state = int(datetime.now().timestamp() * 10000)
                     cur.execute('INSERT INTO states (id_state, title, text, id_owner) VALUES (%s, %s, %s, %s)',
                                 (id_state, state.title, state.text, id_owner))
@@ -202,7 +202,14 @@ async def PostState(state: StateSchema, request: Request):
 
                     raise HTTPException(status_code=403, detail='you are not authorized')
 
-        return {"id_state": id_state}
+        return {"id_state": id_state,
+                "title": state.title,
+                "text": state.text,
+                "id_owner": id_owner,
+                "username": anon_reg[0]
+                }
+
+
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Expired token")
 

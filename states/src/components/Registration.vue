@@ -37,7 +37,7 @@ export default {
             })
         },
         GetToken() {
-            axios.get('/api/LoginAnonymous')
+            axios.get('h/api/LoginAnonymous')
             .then(response => {
                 console.log('Успех');
                 console.log(response);
