@@ -37,7 +37,7 @@ export default {
     },
     methods: {
         PublishComm() {
-            axios.post('/api/PostComm',
+            axios.post('http://127.0.0.1:8000/api/PostComm',
                 {
                     "text": this.text_comment,
                     "id_state": this.state_data.id_state

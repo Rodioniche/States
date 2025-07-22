@@ -86,7 +86,35 @@ export default {
                 console.log('Не успех');
                 console.log(error);
             })
-        }
+        },
+        DelComm(itemId) {
+            console.log(itemId)
+            axios.post('/api/delComm',
+                {
+                    "id_comm": itemId
+                }
+            )
+            .then(response => {
+                console.log('Успех');
+                console.log(response);
+                this.GetComms();
+            })
+            .catch(error => {
+                console.log('Не успех');
+                
+                console.log(error);
+            })
+            
+        },
+        DownFile(filename) {
+            const link = document.createElement('a');
+            link.href = `/api/file/${filename}`;
+            link.target = '_blank'; 
+            link.download = filename; 
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+}
     }
     
 }
@@ -101,10 +129,10 @@ export default {
         </div>
         <article className="texting">{{ state_data.text }}</article>
         <div className="files" v-for="(item, index) in spisok_files">
-            <article>{{ item.filename }}</article>
+            <article @click="DownFile(item.filename)">{{ item.filename }}</article>
         </div>
         <article v-if="spisok_comms.length==0">Пока комментариев нет</article>
-        <Comm v-for="(item, index) in spisok_comms" :comm_info="item" :key="index" ></Comm>
+        <Comm v-for="(item, index) in spisok_comms" :comm_info="item" :key="index" @delete_item="DelComm"></Comm>
         
         
         <div className="fields">
@@ -170,6 +198,9 @@ input {
 }
 input:hover {
     border: 2px solid #b7b7b7;
+}
+article {
+    cursor: pointer;
 }
 .articles {
     text-align: left;

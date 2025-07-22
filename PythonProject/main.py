@@ -232,7 +232,7 @@ async def PostComm(comm: CommSchema, request: Request):
         print(id_own_comm)
         with psycopg2.connect(**DB_config) as conn:
             with conn.cursor() as cur:
-                cur.execute('SELECT * FROM users WHERE id_user = %s', (int(id_own_comm),))
+                cur.execute('SELECT username FROM users WHERE id_user = %s', (int(id_own_comm),))
                 reg_or_not = cur.fetchone()
                 if reg_or_not == None:
                     registered = False
@@ -261,8 +261,10 @@ async def PostComm(comm: CommSchema, request: Request):
                                     (id_comm, comm.text, comm.id_state, id_own_comm))
                     conn.commit()
 
-
-        return [{"id_comm": id_comm,
+        print(reg_or_not)
+        return [{
+                "username": reg_or_not[0],
+                "id_comm": id_comm,
                 "text": comm.text,
                 "id_state": comm.id_state,
                 "id_own_comm": id_own_comm
@@ -400,9 +402,11 @@ async def get_file(id_state: int):
 
 
 
-@app.post('/file/{filename}')
+@app.get('/file/{filename}')
 async def get_file(filename: str):
-    return FileResponse(filename)
+    return FileResponse(filename, headers={
+            'Content-Disposition': f'attachment; filename="{os.path.basename(filename)}"'
+        })
 
 class DelSchema(BaseModel):
     id_state: int
@@ -422,3 +426,20 @@ async def delete_state(id_state: DelSchema, request: Request):
             cur.execute('DELETE FROM states WHERE id_state = %s AND id_owner = %s;',(id_state.id_state, id_owner))
             conn.commit()
 
+
+
+
+
+class DelCommSchema(BaseModel):
+    id_comm: int
+
+@app.post('/delComm', dependencies=[Depends(security.access_token_required)])
+async def delComm(comm_info: DelCommSchema, request: Request):
+    token = request.cookies.get(config.JWT_ACCESS_COOKIE_NAME)
+    id_owner = jwt.decode(token, key=config.JWT_SECRET_KEY, algorithms=["HS256"])
+    id_owner = id_owner['sub']
+    id_owner = int(id_owner)
+    with psycopg2.connect(**DB_config) as conn:
+        with conn.cursor() as cur:
+            cur.execute('DELETE FROM comms WHERE id_comm = %s AND id_comm_owner = %s;',(comm_info.id_comm, id_owner))
+            conn.commit()

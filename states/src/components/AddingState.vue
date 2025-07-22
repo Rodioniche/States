@@ -11,7 +11,8 @@ export default {
             uploading: false,
             message: '',
             isError: false,
-            id_state: ''
+            id_state: '',
+            butt_or_form: false
         }
     },
     methods: {
@@ -115,6 +116,15 @@ export default {
       const sizes = ['Bytes', 'KB', 'MB', 'GB'];
       const i = Math.floor(Math.log(bytes) / Math.log(k));
       return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    },
+    ChangeForm() {
+      if (this.butt_or_form == false) {
+        this.butt_or_form = true;
+      }
+      else {
+        this.butt_or_form = false;
+      }
+      
     }
   }
 };
@@ -123,7 +133,9 @@ export default {
 </script>
 
 <template>
-<div className="all-components">
+<button @click="ChangeForm()">+</button>
+
+<div className="all-components" v-if="butt_or_form == true">
     <div className="inside-inputs">
         <h1>Добавить статью</h1>
         <div className="fields">
