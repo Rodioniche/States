@@ -9,6 +9,7 @@ import jwt
 import uvicorn
 from starlette.responses import FileResponse
 from fastapi import File
+import os
 #origins = [
  #   "http://localhost:5172",
  #   "http://127.0.0.1:5172", 
