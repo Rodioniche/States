@@ -15,7 +15,7 @@ import bleach
  #   "http://localhost:5172",
  #   "http://127.0.0.1:5172", 
 #]
-app = FastAPI()
+app = FastAPI(limit="20M")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Разрешает все домены
