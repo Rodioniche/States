@@ -43,9 +43,9 @@ config.JWT_SECRET_KEY = "bebra"
 config.JWT_ACCESS_COOKIE_NAME = "my_token"
 config.JWT_COOKIE_CSRF_PROTECT = False
 config.JWT_TOKEN_LOCATION = ["cookies"]
-config.JWT_COOKIE_DOMAIN = "localhost"  # Должен совпадать с фронтендом
-config.JWT_COOKIE_SAMESITE = "lax"      # Или "none" для HTTPS
-config.JWT_COOKIE_SECURE = False        # True только для HTTPS
+config.JWT_COOKIE_DOMAIN = "localhost"  
+config.JWT_COOKIE_SAMESITE = "lax"      
+config.JWT_COOKIE_SECURE = False        
 
 
 security = AuthX(config=config)
@@ -413,31 +413,38 @@ async def upload_file(uploaded_files: list[UploadFile] = File(...), id_state: in
 
 @app.get('/files/{id_state}')
 async def get_file(id_state: int):
-    with psycopg2.connect(**DB_config) as conn:
-        with conn.cursor() as cur:
-            cur.execute('SELECT filename FROM files3 WHERE id_state = %s;',(id_state,))
-            files = cur.fetchall()
-    json_resp = []
-    for line in files:
-        if line[0][-4::] == '.png' or line[0][-4::] == '.jpg' or line[0][-5::] == '.jpeg':
-            flag = 'photo'
-        else:
-            flag = 'not photo'
-        json_resp.append({
-            "filename" : line[0],
-            "imageUrl": '/api/file/' + line[0],
-            "flag": flag
-        })
-    print(json_resp)
-    return json_resp
+    try:
+        with psycopg2.connect(**DB_config) as conn:
+            with conn.cursor() as cur:
+                cur.execute('SELECT filename FROM files3 WHERE id_state = %s;',(id_state,))
+                files = cur.fetchall()
+        json_resp = []
+        for line in files:
+            if line[0][-4::] == '.png' or line[0][-4::] == '.jpg' or line[0][-5::] == '.jpeg':
+                flag = 'photo'
+            else:
+                flag = 'not photo'
+            json_resp.append({
+                "filename" : line[0],
+                "imageUrl": '/api/file/' + line[0],
+                "flag": flag
+            })
+        
+        return json_resp
+    except:
+        raise HTTPException(status_code=500)
 
 
 
 @app.get('/file/{filename}')
 async def get_file(filename: str):
-    return FileResponse(filename, headers={
-            'Content-Disposition': f'attachment; filename="{os.path.basename(filename)}"'
-        })
+    try:
+        return FileResponse(filename, headers={
+                'Content-Disposition': f'attachment; filename="{os.path.basename(filename)}"'
+            })
+    except:
+        raise HTTPException(status_code=500)
+
 
 class DelSchema(BaseModel):
     id_state: int
@@ -484,10 +491,4 @@ async def delComm(comm_info: DelCommSchema, request: Request):
     except:
         raise HTTPException(status_code=500)
 
-@app.get("/test")
-async def test():
 
-    # Пример текста с тегами <d>
-
-    content = "Это обычный текст, а это <d>важная часть</d>, которая должна быть жирной."
-    return {"content": content}

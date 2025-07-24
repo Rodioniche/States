@@ -43,13 +43,13 @@ export default {
     ScrUp() {
         window.scrollTo({
         top: 0,
-        behavior: 'smooth' // Плавная анимация
+        behavior: 'smooth' 
       });
     },
     handleFiles(event) {
       const selected = Array.from(event.target.files);
       const MAX_SIZE = 20 * 1024 * 1024;
-      // Проверка количества файлов
+      
       if (selected.length > 5) {
         this.message = 'Максимум 5 файлов!';
         this.isError = true;
@@ -77,18 +77,18 @@ export default {
   try {
     const formData = new FormData();
     
-    // Добавляем ID состояния (должен быть динамическим, здесь пример с 1234)
-    formData.append('id_state', this.id_state);  // FastAPI автоматически конвертирует в int
     
-    // Добавляем файлы под именем 'uploaded_files' (как ожидает сервер)
+    formData.append('id_state', this.id_state);  
+    
+    
     this.files.forEach(file => {
-      formData.append('uploaded_files', file);  // Ключ должен совпадать с серверным
+      formData.append('uploaded_files', file); 
     });
     
-    // Правильная структура запроса
+    
     const response = await axios.post(
       '/api/files', 
-      formData,  // Все данные здесь
+      formData,  
       {
         headers: {
           'Content-Type': 'multipart/form-data'
@@ -102,7 +102,7 @@ export default {
     this.$refs.fileInput.value = '';
     
   } catch (error) {
-    // Улучшенная обработка ошибок
+    
     let errorMessage = error.message;
     if (error.response) {
       errorMessage = error.response.data?.detail || 
