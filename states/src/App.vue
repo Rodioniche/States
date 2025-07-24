@@ -10,7 +10,7 @@ const authStore = useAuthStore();
 
 
 function Reg_or_not() {
-     axios.get("/api/rememberMe")
+     axios.get("http://127.0.0.1:8000/api/rememberMe")
     .then(response => {
         console.log('Успех');
         console.log(response);
