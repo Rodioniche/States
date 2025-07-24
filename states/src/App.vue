@@ -1,12 +1,14 @@
 <script setup>
 import Header from './components/Header.vue';
 import axios from 'axios';
+axios.defaults.withCredentials = true
 import { useAuthStore } from '@/stores/authStore.js';
 
 
 const authStore = useAuthStore();
 
-    
+
+
 function Reg_or_not() {
      axios.get("/api/rememberMe")
     .then(response => {
@@ -20,6 +22,7 @@ function Reg_or_not() {
     })
 }
 Reg_or_not()    
+
 
 </script>
 

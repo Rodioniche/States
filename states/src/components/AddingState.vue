@@ -1,6 +1,7 @@
 <script>
 import axios from 'axios';
 import UplFile from './UplFile.vue';
+axios.defaults.withCredentials = true
 export default {
     components: { UplFile },
     data() {
@@ -47,7 +48,7 @@ export default {
     },
     handleFiles(event) {
       const selected = Array.from(event.target.files);
-      
+      const MAX_SIZE = 20 * 1024 * 1024;
       // Проверка количества файлов
       if (selected.length > 5) {
         this.message = 'Максимум 5 файлов!';
@@ -55,7 +56,13 @@ export default {
         this.$refs.fileInput.value = '';
         return;
       }
-      
+      const totalSize = selected.reduce((sum, file) => sum + file.size, 0);
+        if (totalSize > MAX_SIZE) {
+            this.message = `Общий размер файлов превышает 20 МБ! (${this.formatSize(totalSize)})`;
+            this.isError = true;
+            this.$refs.fileInput.value = '';
+            return;
+      }
       this.files = selected;
       this.message = '';
       this.isError = false;

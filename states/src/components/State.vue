@@ -2,7 +2,7 @@
 import axios from 'axios';
 axios.defaults.withCredentials = true
 import BigState from './BigState.vue';
-
+import '@/assets/main.css'
 
 
 
@@ -37,7 +37,7 @@ export default {
     },
     methods: {
         PublishComm() {
-            axios.post('http://127.0.0.1:8000/api/PostComm',
+            axios.post('/api/PostComm',
                 {
                     "text": this.text_comment,
                     "id_state": this.state_data.id_state
@@ -80,6 +80,14 @@ export default {
                 console.log(error);
             })
         },
+        safeHtml(html) {
+        // Разрешаем только тег <d> с заменой на <strong>
+        return html
+            .replace(/<d>/gi, '<strong>')
+            .replace(/<\/d>/gi, '</strong>')
+            // Защита от XSS - удаляем все остальные теги
+            ///.replace(/<[^>]*(>|$)/g, '');
+    }
         
     }
     
@@ -95,8 +103,8 @@ export default {
         <h3>{{ state_data.title }}</h3>
     </div>
     
-    <article className="texting" >{{ state_data.text }}</article>
     
+    <article className="texting" v-html="state_data.text"></article>
     
     
     </div>
@@ -167,7 +175,16 @@ svg {
     margin-top: 2%;
     
 }
-
+.bold1 {
+    font-weight: 300;
+}
+.bold2 {
+    font-weight: 600;
+    color: red;
+}
+.bold3 {
+    font-weight: 900;
+}
 
 .overlay {
   position: fixed;
@@ -180,6 +197,8 @@ svg {
   justify-content: center;
   align-items: center;
   z-index: 1000; 
+  overflow-y: auto;
+  
 }
 
 .window {
@@ -189,5 +208,6 @@ svg {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
   z-index: 1001; 
   width: 50%;
+  
 }
 </style>

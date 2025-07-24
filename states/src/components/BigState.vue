@@ -2,6 +2,7 @@
 import axios from 'axios';
 axios.defaults.withCredentials = true
 import Comm from './Comm.vue';
+import Photo from './Photo.vue';
 
 
 
@@ -10,7 +11,7 @@ import Comm from './Comm.vue';
 
 
 export default {
-    components: { Comm },
+    components: { Comm, Photo },
     data() {
         return {
             text: '',
@@ -24,7 +25,8 @@ export default {
             
             id_owner_comment: 124234,
             text_comment: '',
-            spisok_comms: []
+            spisok_comms: [],
+            imageUrl: ""
             
 
         }
@@ -114,7 +116,12 @@ export default {
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-}
+    },
+        displayImage(filename) {
+      // Просто устанавливаем URL - Vue автоматически обновит <img>
+      this.imageUrl = `/api/file/${filename}`;
+    }
+    
     }
     
 }
@@ -127,10 +134,22 @@ export default {
             <h1>{{ state_data.username }}</h1>
             <h3>{{ state_data.title }}</h3>
         </div>
-        <article className="texting">{{ state_data.text }}</article>
-        <div className="files" v-for="(item, index) in spisok_files">
-            <article @click="DownFile(item.filename)">{{ item.filename }}</article>
+        <article className="texting" v-html="state_data.text"></article>
+        
+        <div className="photos">
+            <div v-for="(item, index) in spisok_files" className="photos-inside">
+                <img v-show="item.flag == 'photo'" :src="item.imageUrl" alt="Dynamic image" class="my-image">
+            </div>
         </div>
+        
+        <div className="files" v-for="(item, index) in spisok_files">
+            
+            <article @click="DownFile(item.filename)">{{ item.filename }}</article>
+            
+           
+        
+        </div>
+        
         <article v-if="spisok_comms.length==0">Пока комментариев нет</article>
         <Comm v-for="(item, index) in spisok_comms" :comm_info="item" :key="index" @delete_item="DelComm"></Comm>
         
@@ -161,6 +180,17 @@ export default {
     margin-right: auto;
     margin-top: 3vh;
 }
+img {
+    max-width: 100%;
+    
+}
+.photos {
+    display: flex;
+    max-width: 100%;
+}
+.photos-inside {
+    max-width: 100%;
+}
 .inside {
     width: 80%;
     min-height: 70vh;
@@ -177,6 +207,7 @@ svg {
 svg:hover {
     cursor: pointer;
 }
+
 .fields {
     min-height: 5vh;
     max-height: 20vh;

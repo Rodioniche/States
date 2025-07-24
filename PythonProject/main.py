@@ -10,6 +10,7 @@ import uvicorn
 from starlette.responses import FileResponse
 from fastapi import File
 import os
+import bleach
 #origins = [
  #   "http://localhost:5172",
  #   "http://127.0.0.1:5172", 
@@ -23,7 +24,7 @@ app.add_middleware(
     allow_headers=["*"],  # Разрешает все заголовки
 )
 
-
+ALLOWED_TAGS = ['b1', 'b2', 'b3', 'i', 'h1', 'h2', 'h3', 'und']
 DB_config = {
     "dbname": "states",
     "user": "postgres",
@@ -48,6 +49,19 @@ config.JWT_COOKIE_SECURE = False        # True только для HTTPS
 
 
 security = AuthX(config=config)
+
+def safe_html(text):
+
+
+    clean_text = bleach.clean(text, tags=ALLOWED_TAGS, strip=True)
+    print(clean_text)
+    clean_text = clean_text.replace('<b1>', '<span class="bold1">').replace('</b1>', '</span>')
+    clean_text = clean_text.replace("<b2>", "<span class='bold2'>").replace("</b2>", "</span>")
+    clean_text = clean_text.replace('<b3>', '<span class="bold3">').replace('</b3>', '</span>')
+    clean_text = clean_text.replace('<und>', '<span class="und">').replace('</und>', '</span>')
+    clean_text = clean_text.replace('<i>', '<span class="itallic1">').replace('</i>', '</span>')
+    print(clean_text)
+    return clean_text
 
 class RegistrationSchema(BaseModel):
     UserName: str
@@ -102,7 +116,7 @@ async def Registration(user_data: RegistrationSchema, response: Response):
     except Exception:
         raise HTTPException(status_code=500)
 
-@app.get('/rememberMe')
+@app.get('/rememberMe', dependencies=[Depends(security.access_token_required)])
 async def Rem_me(request: Request):
     try:
         token = request.cookies.get(config.JWT_ACCESS_COOKIE_NAME)
@@ -119,6 +133,8 @@ async def Rem_me(request: Request):
                     }
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Expired token")
+    except:
+        raise HTTPException(status_code=500)
 @app.get('/LoginAnonymous')
 async def LoginAnonymous(response: Response, request: Request):
     token = request.cookies.get(config.JWT_ACCESS_COOKIE_NAME)
@@ -166,7 +182,7 @@ async def Login(user_data: LoginSchema, response: Response):
 
                 id_user = str(id_user)
                 token = security.create_access_token(uid=id_user)
-                response.set_cookie(config.JWT_ACCESS_COOKIE_NAME, token, httponly=True)
+                response.set_cookie(config.JWT_ACCESS_COOKIE_NAME, token, httponly=True, max_age=3600*24*15)
                 return {token: password[0]}
     except HTTPException:
         raise
@@ -188,7 +204,7 @@ async def PostState(state: StateSchema, request: Request):
         id_owner = id_owner['sub']
         id_owner = int(id_owner)
 
-
+        state.text = safe_html(state.text)
 
         with psycopg2.connect(**DB_config) as conn:
             with conn.cursor() as cur:
@@ -213,6 +229,8 @@ async def PostState(state: StateSchema, request: Request):
 
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Expired token")
+    except:
+        raise HTTPException(status_code=500)
 
 class CommSchema(BaseModel):
     text: str
@@ -272,6 +290,7 @@ async def PostComm(comm: CommSchema, request: Request):
                 }]
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Expired token")
+
     except: HTTPException(status_code=500, detail='beda')
 
 @app.get('/GetStates')
@@ -367,25 +386,30 @@ async def get_comm(count_states: int):
 
 @app.post('/files', dependencies=[Depends(security.access_token_required)])
 async def upload_file(uploaded_files: list[UploadFile] = File(...), id_state: int = Form(...)):
-    bd_request = ''
+    try:
+        bd_request = ''
 
-    for uploaded_file in uploaded_files:
+        for uploaded_file in uploaded_files:
 
-        file = uploaded_file.file
-        #filename = file.filename
-        splited = uploaded_file.filename.split('.')
-        filename = str(int(datetime.now().timestamp() * 100000000))+'.'+splited[-1]
+            file = uploaded_file.file
+            #filename = file.filename
+            splited = uploaded_file.filename.split('.')
+            filename = str(int(datetime.now().timestamp() * 100000000))+'.'+splited[-1]
 
-        with open(filename, 'wb') as f:
-            f.write(file.read())
-        one_line = '(' + str(id_state) + ', ' + "'" + str(filename) + "'" + '), '
-        print(one_line)
-        bd_request += one_line
-    bd_request = bd_request[:-2] + ';'
-    print(bd_request)
-    with psycopg2.connect(**DB_config) as conn:
-        with conn.cursor() as cur:
-            cur.execute('INSERT INTO files3 (id_state, filename) VALUES ' + bd_request)
+            with open(filename, 'wb') as f:
+                f.write(file.read())
+            one_line = '(' + str(id_state) + ', ' + "'" + str(filename) + "'" + '), '
+            print(one_line)
+            bd_request += one_line
+        bd_request = bd_request[:-2] + ';'
+        print(bd_request)
+        with psycopg2.connect(**DB_config) as conn:
+            with conn.cursor() as cur:
+                cur.execute('INSERT INTO files3 (id_state, filename) VALUES ' + bd_request)
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Expired token")
+    except:
+        raise HTTPException(status_code=500)
 
 @app.get('/files/{id_state}')
 async def get_file(id_state: int):
@@ -395,8 +419,14 @@ async def get_file(id_state: int):
             files = cur.fetchall()
     json_resp = []
     for line in files:
+        if line[0][-4::] == '.png' or line[0][-4::] == '.jpg' or line[0][-5::] == '.jpeg':
+            flag = 'photo'
+        else:
+            flag = 'not photo'
         json_resp.append({
-            "filename" : line[0]
+            "filename" : line[0],
+            "imageUrl": '/api/file/' + line[0],
+            "flag": flag
         })
     print(json_resp)
     return json_resp
@@ -418,15 +448,19 @@ class DelSchema(BaseModel):
 
 @app.post('/deleteState', dependencies=[Depends(security.access_token_required)])
 async def delete_state(id_state: DelSchema, request: Request):
-    token = request.cookies.get(config.JWT_ACCESS_COOKIE_NAME)
-    id_owner = jwt.decode(token, key=config.JWT_SECRET_KEY, algorithms=["HS256"])
-    id_owner = id_owner['sub']
-    id_owner = int(id_owner)
-    with psycopg2.connect(**DB_config) as conn:
-        with conn.cursor() as cur:
-            cur.execute('DELETE FROM states WHERE id_state = %s AND id_owner = %s;',(id_state.id_state, id_owner))
-            conn.commit()
-
+    try:
+        token = request.cookies.get(config.JWT_ACCESS_COOKIE_NAME)
+        id_owner = jwt.decode(token, key=config.JWT_SECRET_KEY, algorithms=["HS256"])
+        id_owner = id_owner['sub']
+        id_owner = int(id_owner)
+        with psycopg2.connect(**DB_config) as conn:
+            with conn.cursor() as cur:
+                cur.execute('DELETE FROM states WHERE id_state = %s AND id_owner = %s;',(id_state.id_state, id_owner))
+                conn.commit()
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Expired token")
+    except:
+        raise HTTPException(status_code=500)
 
 
 
@@ -436,11 +470,24 @@ class DelCommSchema(BaseModel):
 
 @app.post('/delComm', dependencies=[Depends(security.access_token_required)])
 async def delComm(comm_info: DelCommSchema, request: Request):
-    token = request.cookies.get(config.JWT_ACCESS_COOKIE_NAME)
-    id_owner = jwt.decode(token, key=config.JWT_SECRET_KEY, algorithms=["HS256"])
-    id_owner = id_owner['sub']
-    id_owner = int(id_owner)
-    with psycopg2.connect(**DB_config) as conn:
-        with conn.cursor() as cur:
-            cur.execute('DELETE FROM comms WHERE id_comm = %s AND id_comm_owner = %s;',(comm_info.id_comm, id_owner))
-            conn.commit()
+    try:
+        token = request.cookies.get(config.JWT_ACCESS_COOKIE_NAME)
+        id_owner = jwt.decode(token, key=config.JWT_SECRET_KEY, algorithms=["HS256"])
+        id_owner = id_owner['sub']
+        id_owner = int(id_owner)
+        with psycopg2.connect(**DB_config) as conn:
+            with conn.cursor() as cur:
+                cur.execute('DELETE FROM comms WHERE id_comm = %s AND id_comm_owner = %s;',(comm_info.id_comm, id_owner))
+                conn.commit()
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Expired token")
+    except:
+        raise HTTPException(status_code=500)
+
+@app.get("/test")
+async def test():
+
+    # Пример текста с тегами <d>
+
+    content = "Это обычный текст, а это <d>важная часть</d>, которая должна быть жирной."
+    return {"content": content}

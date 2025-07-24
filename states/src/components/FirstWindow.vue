@@ -1,13 +1,15 @@
 <script>
 import State from './State.vue';
 import axios from 'axios';
+axios.defaults.withCredentials = true
 import Header from './Header.vue';
 import BigState from './BigState.vue';
 import AddingState from './AddingState.vue';
 import UplFile from './UplFile.vue';
+import Test from './Test.vue';
 
 export default {
-    components: { State, Header, BigState, AddingState, UplFile },
+    components: { State, Header, BigState, AddingState, UplFile, Test },
     data() {
         
         return {
