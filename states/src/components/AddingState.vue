@@ -159,7 +159,7 @@ export default {
       multiple 
       @change="handleFiles" 
       ref="fileInput"
-      accept=".jpg,.png,.pdf" 
+       
     >
     
     
